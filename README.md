@@ -1,4 +1,4 @@
-[![Panda3D Versions](https://img.shields.io/badge/panda3d-1.9%2C%201.10-blue.svg)](https://www.panda3d.org/)
+[![Build Status](https://travis-ci.org/Moguri/panda3d-simpleecs.svg?branch=master)](https://travis-ci.org/Moguri/panda3d-simpleecs)[![Panda3D Versions](https://img.shields.io/badge/panda3d-1.9%2C%201.10-blue.svg)](https://www.panda3d.org/)
 [![](https://img.shields.io/github/license/Moguri/pman.svg)](https://choosealicense.com/licenses/mit/)
 
 # simpleecs
