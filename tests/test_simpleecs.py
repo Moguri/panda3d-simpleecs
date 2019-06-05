@@ -11,7 +11,7 @@ def manager():
     return simpleecs.ECSManager()
 
 
-@simpleecs.Component('COUNT')
+@simpleecs.Component()
 class CountComponent:
     name: str
 
@@ -19,14 +19,14 @@ class CountComponent:
 class CountingSystem:
     num_components = 0
     component_types = [
-        'COUNT',
+        CountComponent,
     ]
     def init_components(self, components):
-        for _ in components['COUNT']:
+        for _ in components[CountComponent]:
             self.num_components += 1
 
     def destroy_components(self, components):
-        for _ in components['COUNT']:
+        for _ in components[CountComponent]:
             self.num_components -= 1
 
     def update(self, _dt, _components):
@@ -48,7 +48,7 @@ def test_update(manager):
 def test_system_init_destroy_components(manager):
     counting_system = CountingSystem()
     entity = manager.create_entity()
-    entity.add_component(CountComponent('foo'))
+    entity.add_component(CountComponent(name='foo'))
     manager.add_system(counting_system)
 
     assert counting_system.num_components == 0

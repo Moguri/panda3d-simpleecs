@@ -3,13 +3,11 @@ import weakref
 
 
 class Component():
-    def __init__(self, typeid, unique=True):
-        self.typeid = typeid
+    def __init__(self, unique=True):
         self.unique = unique
 
     def __call__(self, cls):
-        cls = dataclasses.dataclass(cls)
-        cls.typeid = self.typeid
+        cls = dataclasses.dataclass(cls, eq=False)
         cls.is_unique = self.unique
         def _entity_prop(self):
             return self._entity()
@@ -33,7 +31,7 @@ class Entity():
         self.guid = None
 
     def add_component(self, component):
-        typeid = component.typeid
+        typeid = type(component)
 
         enforce_unique = component.is_unique
         if not enforce_unique:
@@ -52,16 +50,16 @@ class Entity():
             self._new_components[typeid] = [component]
 
     def remove_component(self, component):
-        if component.typeid in self._components:
+        typeid = type(component)
+        if typeid in self._components:
             cdict = self._components
-            clist = self._components[component.typeid]
-        elif component.typeid in self._new_components:
+            clist = self._components[typeid]
+        elif typeid in self._new_components:
             cdict = self._new_components
-            clist = self._new_components[component.typeid]
+            clist = self._new_components[typeid]
         else:
-            raise KeyError('Enity has no component with typeid of {}'.format(component.typeid))
+            raise KeyError('Entity has no component with typeid of {}'.format(typeid))
 
-        typeid = component.typeid
         if typeid in self._dead_components:
             self._dead_components[typeid].append(component)
         else:
@@ -69,7 +67,7 @@ class Entity():
 
         clist.remove(component)
         if not clist:
-            del cdict[component.typeid]
+            del cdict[typeid]
 
     def clear_components(self):
         self._dead_components = {
@@ -105,7 +103,7 @@ class Entity():
         elif typeid in self._new_components:
             return self._new_components[typeid]
         else:
-            raise KeyError('Enity has no component with typeid of {}'.format(typeid))
+            raise KeyError('Entity has no component with typeid of {}'.format(typeid))
 
     def has_component(self, typeid):
         return typeid in self._components or typeid in self._new_components
