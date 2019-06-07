@@ -59,14 +59,15 @@ def benchmark(num_entities=1, num_components=1):
 
 
 if __name__ == '__main__':
-    INCS = [100, 1000, 10000]
-    print('Memory:')
-    print('\tEntity: {}, NullComponent: {}'.format(
+    print('=Memory=')
+    print('Entity: {}, NullComponent: {}'.format(
         sys.getsizeof(simpleecs.World().create_entity()),
         sys.getsizeof(globals()['NullComponent0']())
     ))
-    benchmark()
-    for inc in INCS:
-        benchmark(num_entities=inc)
-    for inc in INCS:
-        benchmark(num_components=inc)
+    print()
+
+    print('=Time=')
+    INCS = [1, 100, 1000]
+    for num_ent in INCS:
+        for num_comp in INCS:
+            benchmark(num_entities=num_ent, num_components=num_comp)
