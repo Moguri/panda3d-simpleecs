@@ -39,14 +39,18 @@ def benchmark(num_entities=1, num_components=1):
     setup_end = time.perf_counter_ns()
     world.update(0)
     update_end = time.perf_counter_ns()
+    world.update(0)
+    warm_update_end = time.perf_counter_ns()
 
     setup_time = (setup_end - start) / 100_000
     update_time = (update_end - setup_end) / 100_000
+    warm_update_time = (warm_update_end - update_end) / 100_000
     total_time = setup_time + update_time
-    print('\t{:0.2f}ms (setup: {:0.2f}ms, update: {:0.2f}ms)'.format(
+    print('\t{:0.2f}ms (setup: {:0.2f}ms, update: {:0.2f}ms, warm update: {:0.2f}ms)'.format(
         total_time,
         setup_time,
         update_time,
+        warm_update_time,
     ))
 
     return total_time, setup_time, update_time
