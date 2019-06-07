@@ -4,11 +4,6 @@ from . import core
 
 
 class Panda3DBaseSystem(core.System):
-    component_types = [
-        'NODEPATH',
-        'STATICMESH',
-    ]
-
     def get_nodepath(self, component):
         return component.entity.get_component('NODEPATH').nodepath
 
