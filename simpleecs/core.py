@@ -1,3 +1,4 @@
+import collections
 import dataclasses
 import weakref
 
@@ -25,9 +26,9 @@ class Entity():
     ]
 
     def __init__(self):
-        self._components = {}
-        self._new_components = {}
-        self._dead_components = {}
+        self._components = collections.defaultdict(list)
+        self._new_components = collections.defaultdict(list)
+        self._dead_components = collections.defaultdict(list)
         self.guid = None
 
     def add_component(self, component):
@@ -44,10 +45,7 @@ class Entity():
             raise RuntimeError('Entity already has component with typeid of {}'.format(typeid))
         component._entity = weakref.ref(self) # pylint: disable=protected-access
 
-        if typeid in self._new_components:
-            self._new_components[typeid].append(component)
-        else:
-            self._new_components[typeid] = [component]
+        self._new_components[typeid].append(component)
 
     def remove_component(self, component):
         typeid = type(component)
@@ -60,10 +58,7 @@ class Entity():
         else:
             raise KeyError('Entity has no component with typeid of {}'.format(typeid))
 
-        if typeid in self._dead_components:
-            self._dead_components[typeid].append(component)
-        else:
-            self._dead_components[typeid] = [component]
+        self._dead_components[typeid].append(component)
 
         clist.remove(component)
         if not clist:
