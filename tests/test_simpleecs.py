@@ -7,8 +7,8 @@ import simpleecs
 
 
 @pytest.fixture
-def manager():
-    return simpleecs.ECSManager()
+def world():
+    return simpleecs.World()
 
 
 @simpleecs.Component()
@@ -33,33 +33,33 @@ class CountingSystem:
         pass
 
 
-def test_add_remove_system(manager):
-    manager.add_system(CountingSystem())
-    assert manager.has_system(CountingSystem)
+def test_add_remove_system(world):
+    world.add_system(CountingSystem())
+    assert world.has_system(CountingSystem)
 
-    manager.remove_system(CountingSystem)
-    assert not manager.has_system(CountingSystem)
-
-
-def test_update(manager):
-    manager.update(0.1)
+    world.remove_system(CountingSystem)
+    assert not world.has_system(CountingSystem)
 
 
-def test_system_init_destroy_components(manager):
+def test_update(world):
+    world.update(0.1)
+
+
+def test_system_init_destroy_components(world):
     counting_system = CountingSystem()
-    entity = manager.create_entity()
+    entity = world.create_entity()
     entity.add_component(CountComponent(name='foo'))
-    manager.add_system(counting_system)
+    world.add_system(counting_system)
 
     assert counting_system.num_components == 0
 
-    manager.update(0)
+    world.update(0)
     assert counting_system.num_components == 1
 
-    manager.remove_entity(entity)
+    world.remove_entity(entity)
     entity = None
-    manager.update(0)
+    world.update(0)
     assert counting_system.num_components == 0
 
-    manager.update(0)
+    world.update(0)
     assert counting_system.num_components == 0

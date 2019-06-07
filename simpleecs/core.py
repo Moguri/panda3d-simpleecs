@@ -119,7 +119,7 @@ class DuplicateSystemException(Exception):
     pass
 
 
-class ECSManager():
+class World():
     def __init__(self):
         self.entities = set()
         self.systems = {}

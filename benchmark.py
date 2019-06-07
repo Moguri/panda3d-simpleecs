@@ -30,7 +30,7 @@ class NullSystem:
 def benchmark(num_entities=1, num_components=1):
     print('Entities: {}, Components: {}'.format(num_entities, num_components))
     start = time.perf_counter_ns()
-    world = simpleecs.ECSManager()
+    world = simpleecs.World()
     system = NullSystem()
     system.component_types = [
         globals()['NullComponent{}'.format(i)]
@@ -62,7 +62,7 @@ if __name__ == '__main__':
     INCS = [100, 1000, 10000]
     print('Memory:')
     print('\tEntity: {}, NullComponent: {}'.format(
-        sys.getsizeof(simpleecs.ECSManager().create_entity()),
+        sys.getsizeof(simpleecs.World().create_entity()),
         sys.getsizeof(globals()['NullComponent0']())
     ))
     benchmark()
