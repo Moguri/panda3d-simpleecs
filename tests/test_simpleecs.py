@@ -18,9 +18,6 @@ class CountComponent:
 
 class CountingSystem:
     num_components = 0
-    component_types = [
-        CountComponent,
-    ]
     def init_components(self, components):
         for _ in components[CountComponent]:
             self.num_components += 1
@@ -43,6 +40,22 @@ def test_add_remove_system(world):
 
 def test_update(world):
     world.update(0.1)
+
+
+def test_get_component(world):
+    counting_system = CountingSystem()
+    entity = world.create_entity()
+    component = CountComponent(name='foo')
+    entity.add_component(component)
+    world.add_system(counting_system)
+
+    assert entity.get_component(CountComponent) == component
+
+    @simpleecs.Component()
+    class NullComponent:
+        number: int = 0
+    with pytest.raises(ValueError):
+        entity.get_component(NullComponent)
 
 
 def test_system_init_destroy_components(world):

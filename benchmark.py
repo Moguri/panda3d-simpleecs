@@ -15,8 +15,6 @@ for i in range(10_000):
 
 
 class NullSystem:
-    component_types = [
-    ]
     def init_components(self, components):
         pass
 
@@ -32,10 +30,6 @@ def benchmark(num_entities=1, num_components=1):
     start = time.perf_counter_ns()
     world = simpleecs.World()
     system = NullSystem()
-    system.component_types = [
-        globals()['NullComponent{}'.format(i)]
-        for i in range(num_components)
-    ]
     world.add_system(system)
     for _ in range(num_entities):
         entity = world.create_entity()
