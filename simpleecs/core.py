@@ -68,9 +68,13 @@ class World():
         self._new_components = collections.defaultdict(list)
         self._dead_components = collections.defaultdict(list)
 
-    def create_entity(self):
+    def create_entity(self, components=None):
         entity = Entity(self)
         self._add_entity(entity)
+
+        if components:
+            for comp in components:
+                self.add_component(entity, comp)
 
         return entity
 

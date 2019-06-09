@@ -60,8 +60,9 @@ def test_get_component(world):
 
 def test_system_init_destroy_components(world):
     counting_system = CountingSystem()
-    entity = world.create_entity()
-    entity.add_component(CountComponent(name='foo'))
+    entity = world.create_entity([
+        CountComponent(name='foo'),
+    ])
     world.add_system(counting_system)
 
     assert counting_system.num_components == 0
