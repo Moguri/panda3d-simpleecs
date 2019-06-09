@@ -30,11 +30,12 @@ def benchmark(num_entities=1, num_components=1):
     world = simpleecs.World()
     system = NullSystem()
     world.add_system(system)
+    globals_dict = globals()
     for _ in range(num_entities):
-        entity = world.create_entity()
-        for j in range(num_components):
-            comp = globals()['NullComponent{}'.format(j)]()
-            entity.add_component(comp)
+        world.create_entity([
+            globals_dict['NullComponent{}'.format(compnum)]()
+            for compnum in range(num_components)
+        ])
     setup_end = time.perf_counter_ns()
     world.update(0)
     update_end = time.perf_counter_ns()
