@@ -3,15 +3,14 @@ import time
 
 import simpleecs
 
-COMP_TEMPLATE = """
 @simpleecs.Component()
-class NullComponent{}:
+class NullComponent:
     name: str = ""
-"""
 
 
 for i in range(10_000):
-    exec(COMP_TEMPLATE.format(i)) # pylint:disable=exec-used
+    compname = 'NullComponent{}'.format(i)
+    globals()[compname] = type(compname, NullComponent.__bases__, dict(NullComponent.__dict__))
 
 
 class NullSystem:
