@@ -44,7 +44,7 @@ class BaseBenchmark:
                 time_update_warm = (time.perf_counter_ns() - time_start) / 100_000
 
                 time_total = time_setup + time_update_cold + time_update_warm
-                print('\t{:0.2f}ms (setup: {:0.2f}ms, update: {:0.2f}ms, warm update: {:0.2f}ms)'.format(
+                print('\t{:0.2f}ms (setup: {:0.2f}ms, cold update: {:0.2f}ms, warm update: {:0.2f}ms)'.format(
                     time_total,
                     time_setup,
                     time_update_cold,
@@ -56,14 +56,14 @@ class SimpleEcsBench(BaseBenchmark):
     def __init__(self):
         import simpleecs
         import simpleecs.components
-        self.component_classes = {
-            'NullComponent{}'.format(i): type(
+        self.component_classes = [
+            type(
                 'NullComponent{}'.format(i),
                 simpleecs.components.NullComponent.__bases__,
                 dict(simpleecs.components.NullComponent.__dict__),
             )
             for i in range(10_000)
-        }
+        ]
         self.world = None
 
         super().__init__('simpleecs')
@@ -87,7 +87,7 @@ class SimpleEcsBench(BaseBenchmark):
 
         for _ in range(num_entities):
             self.world.create_entity([
-                self.component_classes['NullComponent{}'.format(compnum)]()
+                self.component_classes[compnum]
                 for compnum in range(num_components)
             ])
 
