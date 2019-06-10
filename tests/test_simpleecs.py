@@ -1,6 +1,7 @@
 import pytest
 
 import simpleecs
+import simpleecs.components
 
 #pylint:disable=redefined-outer-name
 #pylint:disable=invalid-name
@@ -51,11 +52,8 @@ def test_get_component(world):
 
     assert entity.get_component(CountComponent) == component
 
-    @simpleecs.Component()
-    class NullComponent:
-        number: int = 0
     with pytest.raises(ValueError):
-        entity.get_component(NullComponent)
+        entity.get_component(simpleecs.components.NullComponent)
 
 
 def test_system_init_destroy_components(world):

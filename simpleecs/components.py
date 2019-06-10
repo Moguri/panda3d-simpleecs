@@ -4,6 +4,11 @@ from . import core
 
 
 @core.Component()
+class NullComponent:
+    number: int = 0
+
+
+@core.Component()
 class NodePathComponent:
     name: str
     parent: p3d.NodePath

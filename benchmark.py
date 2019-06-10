@@ -1,71 +1,106 @@
 import sys
 import time
 
-import simpleecs
 
-@simpleecs.Component()
-class NullComponent:
-    name: str = ""
+class BaseBenchmark:
+    def __init__(self, name):
+        self.name = name
+
+    def get_mem_usage(self):
+        return "", ""
+
+    def setup(self, num_entities, num_components): # pylint: disable=unused-argument
+        return 0
+
+    def update_cold(self):
+        return 0
+
+    def update_warm(self):
+        return 0
+
+    def run(self):
+        print('={}='.format(self.name))
+        print('==Memory==')
+        print('Entity: {}, NullComponent: {}'.format(
+            *self.get_mem_usage()
+        ))
+        print()
+
+        print('==Time==')
+        incs = [1, 100, 1000]
+        for num_ent in incs:
+            for num_comp in incs:
+                print('Entities: {}, Components: {}'.format(num_ent, num_comp))
+                time_start = time.perf_counter_ns()
+                self.setup(num_ent, num_comp)
+                time_setup = (time.perf_counter_ns() - time_start) / 100_000
+
+                time_start = time.perf_counter_ns()
+                self.update_cold()
+                time_update_cold = (time.perf_counter_ns() - time_start) / 100_000
+
+                time_start = time.perf_counter_ns()
+                self.update_warm()
+                time_update_warm = (time.perf_counter_ns() - time_start) / 100_000
+
+                time_total = time_setup + time_update_cold + time_update_warm
+                print('\t{:0.2f}ms (setup: {:0.2f}ms, update: {:0.2f}ms, warm update: {:0.2f}ms)'.format(
+                    time_total,
+                    time_setup,
+                    time_update_cold,
+                    time_update_warm,
+                ))
 
 
-for i in range(10_000):
-    compname = 'NullComponent{}'.format(i)
-    globals()[compname] = type(compname, NullComponent.__bases__, dict(NullComponent.__dict__))
+class SimpleEcsBench(BaseBenchmark):
+    def __init__(self):
+        import simpleecs
+        import simpleecs.components
+        self.component_classes = {
+            'NullComponent{}'.format(i): type(
+                'NullComponent{}'.format(i),
+                simpleecs.components.NullComponent.__bases__,
+                dict(simpleecs.components.NullComponent.__dict__),
+            )
+            for i in range(10_000)
+        }
+        self.world = None
 
+        super().__init__('simpleecs')
 
-class NullSystem:
-    def init_components(self, components):
-        pass
+    def get_mem_usage(self):
+        import simpleecs
+        import simpleecs.components
+        return (
+            sys.getsizeof(simpleecs.World().create_entity()),
+            sys.getsizeof(simpleecs.components.NullComponent())
+        )
 
-    def destroy_components(self, components):
-        pass
+    def setup(self, num_entities, num_components):
+        import simpleecs
+        import simpleecs.systems
 
-    def update(self, _dt, _components):
-        pass
+        self.world = simpleecs.World()
+        self.world.add_system(
+            simpleecs.systems.NullSystem(),
+        )
 
+        for _ in range(num_entities):
+            self.world.create_entity([
+                self.component_classes['NullComponent{}'.format(compnum)]()
+                for compnum in range(num_components)
+            ])
 
-def benchmark(num_entities=1, num_components=1):
-    print('Entities: {}, Components: {}'.format(num_entities, num_components))
-    start = time.perf_counter_ns()
-    world = simpleecs.World()
-    system = NullSystem()
-    world.add_system(system)
-    globals_dict = globals()
-    for _ in range(num_entities):
-        world.create_entity([
-            globals_dict['NullComponent{}'.format(compnum)]()
-            for compnum in range(num_components)
-        ])
-    setup_end = time.perf_counter_ns()
-    world.update(0)
-    update_end = time.perf_counter_ns()
-    world.update(0)
-    warm_update_end = time.perf_counter_ns()
+    def update_cold(self):
+        self.world.update(0)
 
-    setup_time = (setup_end - start) / 100_000
-    update_time = (update_end - setup_end) / 100_000
-    warm_update_time = (warm_update_end - update_end) / 100_000
-    total_time = setup_time + update_time
-    print('\t{:0.2f}ms (setup: {:0.2f}ms, update: {:0.2f}ms, warm update: {:0.2f}ms)'.format(
-        total_time,
-        setup_time,
-        update_time,
-        warm_update_time,
-    ))
-
-    return total_time, setup_time, update_time
+    def update_warm(self):
+        self.world.update(0)
 
 
 if __name__ == '__main__':
-    print('=Memory=')
-    print('Entity: {}, NullComponent: {}'.format(
-        sys.getsizeof(simpleecs.World().create_entity()),
-        sys.getsizeof(globals()['NullComponent0']())
-    ))
-    print()
-
-    print('=Time=')
-    INCS = [1, 100, 1000]
-    for num_ent in INCS:
-        for num_comp in INCS:
-            benchmark(num_entities=num_ent, num_components=num_comp)
+    BENCHMARKS = [
+        SimpleEcsBench()
+    ]
+    for bench in BENCHMARKS:
+        bench.run()

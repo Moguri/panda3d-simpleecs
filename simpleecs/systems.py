@@ -4,6 +4,17 @@ from . import core
 from . import components as pcomps
 
 
+class NullSystem(core.System):
+    def init_components(self, components):
+        pass
+
+    def destroy_components(self, components):
+        pass
+
+    def update(self, _dt, _components):
+        pass
+
+
 class Panda3DBaseSystem(core.System):
     def get_nodepath(self, component):
         return component.entity.get_component(pcomps.NodePathComponent).nodepath
